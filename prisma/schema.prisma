@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organ {
+  id         Int      @id @default(autoincrement())
+  viscera    String
+  partner    String
+  senseOrgan String
+  tissue     String
+  element    Element?
+}
+
+model Element {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  season              String
+  environmentalFactor String
+  direction           String
+  time                TimeOfDay
+  taste               Taste
+  color               String
+  sound               String
+  emotion             String
+  organ               Organ     @relation(fields: [organId], references: [id]) // not in db, used by Prisma to set relation
+  organId             Int       @unique // relation scalar field (used in the `@relation` attribute above)
+}
+
+model Herb {
+  id          Int         @id @default(autoincrement())
+  latin       String
+  ro          String
+  english     String
+  tcm         String
+  folk        String[]
+  images      String[]
+  temperament Temperament
+  quality     String[]
+  taste       Taste[]
+  category    String
+  skills      String[]
+  enemies     String[]
+  dontUse     String[]
+  available   Boolean
+  potions     Potion[]
+}
+
+model Potion {
+  id                Int          @id @default(autoincrement())
+  name              String
+  use               String[]
+  bestSeason        String
+  potionType        String
+  methodDescription String
+  time              String
+  available         Boolean
+  ingredients       Ingredient[]
+  herbs             Herb[]
+}
+
+model Ingredient {
+  id       Int     @id @default(autoincrement())
+  name     String
+  ratio    String
+  quantity String
+  isHerb   Boolean
+  potion   Potion  @relation(fields: [potionId], references: [id]) //Not in db, used by Prisma to describe relation
+  potionId Int //foreign key, in the db
+}
+
+// 1 issue : Enums, ofc
+// Error validating: You defined the enum `TimeOfDay`. 
+// But the current connector does not support enums.
+
+enum TimeOfDay {
+  EARLY_MORNING
+  MORNING
+  MID_DAY
+  AFTERNOON
+  EVENING
+  MID_NIGHT
+}
+
+enum Taste {
+  SPICY
+  SALTY
+  SOUR
+  BITTER
+  SWEET
+}
+
+enum Temperament {
+  COLD
+  COOL
+  NEUTRAL
+  WARM
+  HOT
+}
